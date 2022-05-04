@@ -1,24 +1,34 @@
 use crate::model::Point;
 
+fn calculate_x_distance(a: &Point, b: &Point) -> i64 {
+    let mut distance: i64 = 0;
+    let mut pointer = *a;
+    loop {
+        match [pointer.is_left_of(&b), pointer.is_right_of(&b)] {
+            [true, false] => { pointer = pointer.increase_x(); distance = distance + 1; }
+            [false, true] => { pointer = pointer.decrease_x(); distance = distance + 1; }
+            [false, false] => return distance,
+            _ => panic!("NOT POSSIBLE")
+        }
+    }
+}
+
+fn calculate_y_distance(a: &Point, b: &Point) -> i64 {
+    let mut distance: i64 = 0;
+    let mut pointer = *a;
+    loop {
+        match [pointer.is_below_of(&b), pointer.is_above_of(&b)] {
+            [true, false] => { pointer = pointer.increase_y(); distance = distance + 1; }
+            [false, true] => { pointer = pointer.decrease_y(); distance = distance + 1; }
+            [false, false] => return distance,
+            _ => panic!("NOT POSSIBLE")
+        }
+    }
+}
+
 #[allow(unused)]
-pub fn manhattan_distance(a: &Point, b: &Point) -> i32 {
-    if a.is_left_of(&b) {
-        return manhattan_distance(&a.increase_x(), &b) + 1;
-    }
-
-    if a.is_right_of(&b) {
-        return manhattan_distance(&a.decrease_x(), &b) + 1;
-    }
-
-    if a.is_above_of(&b) {
-        return manhattan_distance(&a.decrease_y(), &b) + 1;
-    }
-
-    if a.is_below_of(&b) {
-        return manhattan_distance(&a.increase_y(), &b) + 1;
-    }
-
-    return 0;
+pub fn manhattan_distance(a: &Point, b: &Point) -> i64 {
+    return calculate_y_distance(a, b) + calculate_x_distance(a, b)
 }
 
 #[cfg(test)]
@@ -69,5 +79,13 @@ mod manhattan_distance_tests {
 
         assert_eq!(20, manhattan_distance(&cardinal, &a));
         assert_eq!(20, manhattan_distance(&a, &cardinal));
+    }
+
+    #[test]
+    fn giant_numbers() {
+        let cardinal = Point::new(i32::MAX, i32::MAX);
+        let a = Point::new(i32::MIN, i32::MIN);
+
+        assert_eq!(8589934590, manhattan_distance(&cardinal, &a));
     }
 }
